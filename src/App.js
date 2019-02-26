@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {  Button, Dialog, Message, Tabs } from 'element-react';
+import {  Button, Dialog, Message, Tabs, Table } from 'element-react';
 import _ from 'lodash';
 import 'element-theme-default';
 
@@ -25,8 +25,42 @@ class App extends Component {
       endTime: undefined,
       totalTime: 15,
       input: '',
+      recordColumns: [
+        {
+          label: "SID",
+          prop: "sid"
+        },
+        {
+          label: "题干",
+          render: function(data){
+            console.log(data)
+            const { num1, op, num2 } = data;
+            return (<span>
+              `${ num1 } ${ op } ${ num2 }`
+            </span>)
+          }
+        },
+        {
+          label: "输入",
+          prop: "input"
+        },
+        {
+          label: "答案",
+          prop: "answer"
+        },
+        {
+          label: "结果",
+          prop: "result"
+        },
+        {
+          label: "用时(s)",
+          prop: "cost"
+        }
+      ],
     }
     this.flagTime = 0;
+    
+    
     
   }
 
@@ -98,8 +132,19 @@ class App extends Component {
       result = true;
     }
     const now = _.now();
-    const costTime = parseInt((now - this.flagTime) / 1000).toFixed(0); //每一题用的秒数
-    const newRecord = <div><i className="txt-success" className={ result?"el-icon-check": "el-icon-close"}></i> {` ${sid}: ${ num1 } - ${ num2 } = ${ inputNum } ( ${ answer } ) | ${costTime}s`}</div>;
+    const cost = parseInt((now - this.flagTime) / 1000).toFixed(0); //每一题用的秒数
+    // const newRecord = <div><i className="txt-success" className={ result?"el-icon-check": "el-icon-close"}></i> {` ${sid}: ${ num1 } - ${ num2 } = ${ inputNum } ( ${ answer } ) | ${costTime}s`}</div>;
+    const newRecord = {
+      result,
+      cost,
+      sid,
+      num1,
+      num2,
+      question: `${ num1 } - ${ num2 }`,
+      op: '-',
+      input: inputNum,
+      answer,
+    };
     records.push(newRecord);
     this.setState({
       counter,
@@ -135,6 +180,7 @@ class App extends Component {
     this.setState({input: val})
   }
   render() {
+    console.log(this.state.records)
     return (
       <div className="container">
         <h1>口算练习 <div className="pull-right" style={ { fontSize: "14px"}}>{ this.state.timer }</div></h1>
@@ -182,11 +228,25 @@ class App extends Component {
             <p>{this.state.counter.ok}/{this.state.counter.total}</p>
           </Tabs.Pane>
           <Tabs.Pane label="记录" name="2">
-            <div style={{ overflow: "auto", height: "10em"}}>{
-              _.map(this.state.records, (record, index) => {
-                return <div key={'i' + index}>{ record }</div>
-              })
-            }</div>
+            <div style={{ overflow: "auto", height: "10em"}}>
+              <table>
+              {
+                _.map(this.state.records, (record, index) => {
+                  return (
+                    <tr>
+                      <td>{record.sid}</td>
+                    </tr>
+                  )
+                })
+              }
+              </table>
+              <Table
+                style={{width: '100%'}}
+                columns={this.state.recordColumns}
+                data={this.state.records}
+                stripe={true}
+              />
+            </div>
           </Tabs.Pane>
           <Tabs.Pane label="统计" name="3" style={{ overflow: "auto", height: "10em"}}>
             <p> ？？ </p>
