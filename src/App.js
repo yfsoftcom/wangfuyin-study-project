@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
-import {  Button, Dialog, Message, Tabs, Icon, Slider } from 'element-react';
+import { Button, Dialog, Message, Tabs, MessageBox } from 'element-react';
 import _ from 'lodash';
 import 'element-theme-default';
-import Record from './Record.js';
-import Rate from './Rate.js';
+import Record from './component/Record.js';
+import Rate from './component/Rate.js';
+import Countdown from './component/Countdown.js';
+import Header from './component/Header.js';
 
 import './App.css';
 
@@ -21,54 +23,42 @@ class App extends Component {
       },
       canNext: false,
       stopFlag: true,
-      timer: '00:00:00',
-      startDialogVisible: true,
-      stopDialogVisible: false,
-      endTime: undefined,
-      totalTime: 15,
+      resultDialogVisible: false,
+      totalTime: 1,
       input: '',
       
     }
     this.flagTime = 0;
     
-    
-    
   }
 
   componentDidMount(){
-    
-    
+    MessageBox.msgbox({
+      title: '消息',
+      message: '准备开始了么？\n提示: 按回车键可以快速进行下一题',
+      showClose: false,
+      showCancelButton: false,
+    }).then(action => {
+      if(action == 'confirm'){
+        this.start();
+      }
+    })
   }
 
-  showTime = () => {
-    if(this.state.endTime <= _.now()){
-      // end
-      this.stop();
-      return;
-    }
-    const delta = parseInt((this.state.endTime - _.now()) / 1000);
-    const mins = parseInt(delta/60).toFixed(0);
-    const seds = parseInt(delta%60).toFixed(0);
-    this.setState({
-      timer: `00:${ _.padStart(mins, 2, '0') }:${ _.padStart(seds, 2, '0') }` ,    
-    })    
-  }
 
   stop = () => {
     this.setState({
       canNext: false,
       stopFlag: true,
-      stopDialogVisible: true,
+      resultDialogVisible: true,
     })
   }
 
   start = () => {
-    this.setState({ stopFlag: false, startDialogVisible: false, endTime: _.now() + (1000 * this.state.totalTime * 60 - 1) }, () => {
-      this.showTime();
+    this.setState({ stopFlag: false, startDialogVisible: false }, () => {
+      
       this.reset();
-      setInterval(() => {
-        this.showTime();
-      }, 1000)
+      this.refs['countdown'].start(this.state.totalTime);
 
       this.refs['answerInput'].focus();
     });    
@@ -150,70 +140,71 @@ class App extends Component {
     })
     this.setState({input: val})
   }
+
+  onSelect = (tabIndex) => {
+    switch(parseInt(tabIndex)){
+      case 3:
+        this.setState({ resultDialogVisible: true })
+        return;
+    }
+  }
+  
+
   render() {
     
     return (
-      <div className="container">
-        <h1>口算练习 <div className="pull-right" style={ { fontSize: "14px"}}>{ this.state.timer }</div></h1>
-        <Dialog
-          title="提示"
-          size="tiny"
-          visible={ this.state.startDialogVisible }
-          onCancel={ () => {} }
-          closeOnClickModal= { false }
-        >
-          <Dialog.Body>
-            <span>准备开始了么？</span>
-            <p>提示: 按回车键可以快速进行下一题</p>
-          </Dialog.Body>
-          <Dialog.Footer className="dialog-footer">
-            <Button type="primary" onClick={ this.start }>开始</Button>
-          </Dialog.Footer>
-        </Dialog>
+      <div>
+        <Header onSelect={ this.onSelect } />
+      
+        <div className="container">
+          <h1>口算练习 <div className="pull-right" style={ { fontSize: "14px"}}><Countdown ref="countdown" timeout={ this.stop }/></div></h1>
 
-        <Dialog
-          title="提示"
-          size="tiny"
-          visible={ this.state.stopDialogVisible }
-          onCancel={ () => {} }
-          closeOnClickModal= { false }
-        >
-          <Dialog.Body>
-            <span>已经做了{this.state.totalTime}分钟了，休息一下吧!</span>
-          </Dialog.Body>
-          <Dialog.Footer className="dialog-footer">
-            <Button type="primary">嗯</Button>
-          </Dialog.Footer>
-        </Dialog>
+          <Dialog
+            title="练习结果"
+            size="small"
+            visible={ this.state.resultDialogVisible }
+            onCancel={ () => { this.setState({ resultDialogVisible: false })} }
+            closeOnClickModal= { false }
+          >
+            <Dialog.Body>
+              <span>已经做了{this.state.totalTime}分钟了，休息一下吧!</span>
+              <Tabs type="border-card" activeName="1" style={{ marginTop: "1em"}}>
+                <Tabs.Pane label="正确率" name="1">
+                  <div style={{ overflow: "auto", height: "20em"}}>
+                    <Rate counter={this.state.counter} />
+                  </div>            
+                </Tabs.Pane>
+                <Tabs.Pane label="记录" name="2">
+                  <div style={{ overflow: "auto", height: "20em"}}>
+                    <Record records={ this.state.records } />
+                  </div>
+                </Tabs.Pane>
+                <Tabs.Pane label="统计" name="3">
+                  <div style={{ overflow: "auto", height: "20em"}}>
+                    <p> ？？ </p>
+                  </div>
+                </Tabs.Pane>
+              </Tabs>
+            </Dialog.Body>
+            <Dialog.Footer className="dialog-footer">
+              <Button type="primary" onClick={ () => { this.setState({ resultDialogVisible: false })} }>嗯</Button>
+            </Dialog.Footer>
+          </Dialog>
 
-        <div className="grid-content bg-purple">
-          <h5>{ this.state.sid}. </h5>
-            <center>
-              <span className="question">{ this.state.num1 } - { this.state.num2 }  = </span>
-              <span className="answer"><input ref="answerInput" onChange={ this.onInputChange} placeholder="?" autoFocus onKeyUp={ this.handleKeyUp } size="large" value={ this.state.input} /></span>
-            </center>
+          <div className="grid-content bg-purple">
+            <h5>{ this.state.sid}. </h5>
+              <center>
+                <span className="question">{ this.state.num1 } - { this.state.num2 }  = </span>
+                <span className="answer"><input ref="answerInput" onChange={ this.onInputChange} placeholder="?" autoFocus onKeyUp={ this.handleKeyUp } size="large" value={ this.state.input} /></span>
+              </center>
+          </div>
+
+          
         </div>
-
-        <Tabs type="border-card" activeName="1" style={{ marginTop: "6em"}}>
-          <Tabs.Pane label="正确率" name="1">
-            <div style={{ overflow: "auto", height: "10em"}}>
-              <Rate counter={this.state.counter} />
-            </div>            
-          </Tabs.Pane>
-          <Tabs.Pane label="记录" name="2">
-            <div style={{ overflow: "auto", height: "10em"}}>
-              <Record records={ this.state.records } />
-            </div>
-          </Tabs.Pane>
-          <Tabs.Pane label="统计" name="3">
-            <div style={{ overflow: "auto", height: "10em"}}>
-              <p> ？？ </p>
-            </div>
-          </Tabs.Pane>
-        </Tabs>
       </div>
     );
   }
 }
 
 export default App;
+

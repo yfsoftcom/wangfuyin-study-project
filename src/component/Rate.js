@@ -3,7 +3,7 @@ import { Slider } from 'element-react';
 import _ from 'lodash';
 import 'element-theme-default';
 
-import './App.css';
+import '../App.css';
 
 export default class extends Component {
   constructor(props){
