@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Slider } from 'element-react';
+import { } from 'element-react';
 import _ from 'lodash';
 import 'element-theme-default';
 
@@ -9,6 +9,7 @@ export default class extends Component {
   constructor(props){
     super(props);
     this.state = {
+      rate: 100
     }
 
   }
@@ -20,10 +21,11 @@ export default class extends Component {
       rate = parseInt( (parseInt(ok)/parseInt(total) * 100).toFixed(0) );
     }
     
+    
     return (
       <div className="block" style={ {width: '90%'}} >
-        <Slider value={ rate }/>
+        <p>{ rate } %</p>
       </div>
-    )
+    ) 
   }
 }

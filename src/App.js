@@ -24,7 +24,7 @@ class App extends Component {
       canNext: false,
       stopFlag: true,
       resultDialogVisible: false,
-      totalTime: 1,
+      totalTime: 15,
       input: '',
       
     }
@@ -35,7 +35,7 @@ class App extends Component {
   componentDidMount(){
     MessageBox.msgbox({
       title: '消息',
-      message: '准备开始了么？\n提示: 按回车键可以快速进行下一题',
+      message: '准备开始了么？\n提示: 按回车键可以快速进行下一题!',
       showClose: false,
       showCancelButton: false,
     }).then(action => {
@@ -195,7 +195,7 @@ class App extends Component {
             <h5>{ this.state.sid}. </h5>
               <center>
                 <span className="question">{ this.state.num1 } - { this.state.num2 }  = </span>
-                <span className="answer"><input ref="answerInput" onChange={ this.onInputChange} placeholder="?" autoFocus onKeyUp={ this.handleKeyUp } size="large" value={ this.state.input} /></span>
+                <span className="answer"><input ref="answerInput" disable={ this.stopFlag }onChange={ this.onInputChange} placeholder="?" autoFocus onKeyUp={ this.handleKeyUp } size="large" value={ this.state.input} /></span>
               </center>
           </div>
 
