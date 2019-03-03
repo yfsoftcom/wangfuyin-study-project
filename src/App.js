@@ -121,8 +121,8 @@ class App extends Component {
       this.next();
       return;
     }
-    if(e.keyCode === 8){
-      // backspace
+    if(e.keyCode === 8 || e.keyCode === 32){
+      // backspace or white space
       this.setState({ input: '' })
     }
   }
@@ -167,7 +167,7 @@ class App extends Component {
             closeOnClickModal= { false }
           >
             <Dialog.Body>
-              <span>已经做了{this.state.totalTime}分钟了，休息一下吧!</span>
+              <span style={{ visibility: this.state.stopFlag? '': 'hidden' }}>已经做了{this.state.totalTime}分钟了，休息一下吧!</span>
               <Tabs type="border-card" activeName="1" style={{ marginTop: "1em"}}>
                 <Tabs.Pane label="正确率" name="1">
                   <div style={{ overflow: "auto", height: "20em"}}>
