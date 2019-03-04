@@ -50,6 +50,13 @@ export default class extends Component {
   }
 
   render() {
+    const { records } = this.props;
+    // let sortedArr = records;
+    // if(_.size(records) > 0){
+    //   // sort
+    //   sortedArr = _.sortBy(records, [ 'result', 'cost'])
+    //   console.log(sortedArr)
+    // }
     return (
     <table style={ {width: '100%'}}>
       <thead>
@@ -65,16 +72,16 @@ export default class extends Component {
       </thead>
       <tbody>
       {
-        _.map(this.props.records, (record, index) => {
+        _.map(records, (record, index) => {
           return (
             <tr key={`col-${index}`}>{
               _.map(this.recordColumns, (col, i) => {
                 const { render, prop } = col;
                 if(_.isFunction(render)){
-                  return <td key={`data-${index}-${i}`}><center>{ render(record, index) }</center></td>
+                  return <td style={ record.result ? styles.success: styles.error } key={`data-${index}-${i}`}><center>{ render(record, index) }</center></td>
                 }
                 return (
-                  <td key={`col-${index}-${i}`}><center>{record[prop]}</center></td>
+                  <td style={ record.result ? styles.success: styles.error } key={`col-${index}-${i}`}><center>{record[prop]}</center></td>
                 )
               })
             }</tr>
@@ -86,4 +93,19 @@ export default class extends Component {
     )
   }
 
+}
+
+const styles = {
+  success: {
+    // background: '#13CE66',
+    // color: 'white',
+  },
+  warning: {
+    background: '#F7BA2A',
+    color: '#fff',
+  },
+  error: {
+    background: '#CC9999',
+    color: '#fff',
+  }
 }

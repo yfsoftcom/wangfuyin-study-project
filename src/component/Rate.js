@@ -24,7 +24,8 @@ export default class extends Component {
     
     return (
       <div className="block" style={ {width: '90%'}} >
-        <p>{ rate } %</p>
+        <p>正确率: { rate } %</p>
+        <p>共计: { total } </p>
       </div>
     ) 
   }
